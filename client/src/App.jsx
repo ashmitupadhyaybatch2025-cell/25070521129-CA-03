@@ -1,29 +1,44 @@
-import About from './about';
-import Home from './home';
-import { Routes,Route } from 'react-router-dom';
-import Services from './services';
-import Contact from './contact';
-import Nav from './nav';
+import { Routes, Route, Navigate } from 'react-router-dom'
+import Signup from './pages/Signup.jsx'
+import Login from './pages/Login.jsx'
+import Home from './pages/Home.jsx'
+import Events from './pages/Events.jsx'
+import Announcements from './pages/Announcements.jsx'
+import Members from './pages/Members.jsx'
+import Admin from './pages/Admin.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+import Layout from './components/Layout.jsx'
 
-const App = () => {
-
+export default function App() {
   return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/signup" replace />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<Login />} />
 
-    <>
+      {/* Everything below needs login and shares the navbar */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/home" element={<Home />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/announcements" element={<Announcements />} />
+        <Route path="/members" element={<Members />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
 
-      <Nav/>
-    
-      <Routes>
-
-        <Route path = "/" element = {<Home/>}></Route>
-        <Route path = "/about" element = {<About/>}></Route>
-        <Route path = "/services" element = {<Services/>}></Route>
-        <Route path = "/contact" element = {<Contact/>}></Route>
-
-      </Routes>
-    
-    </>
+      <Route path="*" element={<Navigate to="/signup" replace />} />
+    </Routes>
   )
 }
-
-export default App;
