@@ -44,7 +44,7 @@ export default function Announcements() {
   const [formError, setFormError] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
 
-  useEffect(() => { document.title = 'Announcements — FLEXI Club Hub' }, [])
+  useEffect(() => { document.title = 'Announcements — The Club Hub' }, [])
 
   const load = useCallback(
     () =>

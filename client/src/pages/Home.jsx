@@ -92,7 +92,7 @@ export default function Home() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    document.title = 'Home — FLEXI Club Hub'
+    document.title = 'Home — The Club Hub'
     Promise.all([
       api('/stats', { token }),
       api('/events', { token }),

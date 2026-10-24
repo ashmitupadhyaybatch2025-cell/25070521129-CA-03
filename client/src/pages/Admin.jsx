@@ -12,7 +12,7 @@ export default function Admin() {
   const [error, setError] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
 
-  useEffect(() => { document.title = 'Admin — FLEXI Club Hub' }, [])
+  useEffect(() => { document.title = 'Admin — The Club Hub' }, [])
 
   const load = useCallback(
     () =>

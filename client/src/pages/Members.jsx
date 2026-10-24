@@ -13,7 +13,7 @@ export default function Members() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    document.title = 'Members — FLEXI Club Hub'
+    document.title = 'Members — The Club Hub'
     api('/members', { token })
       .then((d) => { setMembers(d.members); setLoading(false) })
       .catch((e) => { setError(e.message); setLoading(false) })

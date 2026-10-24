@@ -19,7 +19,7 @@ export default function Layout() {
       {/* ---- Navbar ---- */}
       <nav className="flexi-nav">
         <div className="nav-inner">
-          <NavLink className="nav-logo" to="/home">FLEXI</NavLink>
+          <NavLink className="nav-logo" to="/home">THE</NavLink>
 
           {/* Desktop links */}
           <ul className="nav-links">
@@ -81,7 +81,7 @@ export default function Layout() {
 
       {/* Footer */}
       <footer className="flexi-footer">
-        <strong>FLEXI Club Hub</strong> · Made at SIT Nagpur
+        <strong>The Club Hub</strong> · Made at SIT Nagpur
       </footer>
     </div>
   )

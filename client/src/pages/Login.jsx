@@ -32,7 +32,7 @@ export default function Login() {
   useEffect(() => {
     const theme = localStorage.getItem('flexi-theme') || 'light'
     document.documentElement.setAttribute('data-theme', theme)
-    document.title = 'Log In — FLEXI Club Hub'
+    document.title = 'Log In — The Club Hub'
   }, [])
 
   return (
@@ -80,7 +80,7 @@ export default function Login() {
       <div className="auth-right">
         <form className="auth-form-card" onSubmit={onSubmit} noValidate>
           <div>
-            <div className="auth-logo">FLEXI</div>
+            <div className="auth-logo">THE</div>
             <p className="auth-subtitle" style={{ marginTop: '8px' }}>Sign in to your account</p>
           </div>
 

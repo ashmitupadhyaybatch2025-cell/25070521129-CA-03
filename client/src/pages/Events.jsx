@@ -65,7 +65,7 @@ export default function Events() {
   const [formError, setFormError] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
 
-  useEffect(() => { document.title = 'Events — FLEXI Club Hub' }, [])
+  useEffect(() => { document.title = 'Events — The Club Hub' }, [])
 
   const load = useCallback(() => {
     setLoading(true)
