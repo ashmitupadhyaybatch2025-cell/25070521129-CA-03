@@ -137,40 +137,44 @@ export default function Announcements() {
           ) : null}
         />
       ) : (
-        <div className="timeline">
-          {items.map((a) => (
-            <div className="timeline-item" key={a._id}>
-              <div className="timeline-dot">
-                {getInitials(a.createdBy?.name)}
-              </div>
-              <div className="timeline-card">
-                <div className="timeline-card-header">
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <span className="timeline-card-title">{a.title}</span>
-                      {isNew(a.createdAt) && <span className="badge badge-new">New</span>}
+        <div className="card-grid announce-grid">
+          {items.map((a) => {
+            const cleanTitle = (a.title || '').replace(/flexi\s*club\s*hub/gi, 'The Club Hub').replace(/flexi/gi, 'The')
+            return (
+              <div className="announce-card" key={a._id}>
+                <div className="announce-card-header">
+                  <div className="announce-author-row">
+                    <div className="announce-avatar">
+                      {getInitials(a.createdBy?.name)}
+                    </div>
+                    <div>
+                      <div className="announce-author-name">{a.createdBy?.name || 'Admin'}</div>
+                      <div className="announce-time">🕐 {relTime(a.createdAt)}</div>
                     </div>
                   </div>
-                  {user.role === 'admin' && (
-                    <button
-                      className="btn-icon"
-                      style={{ color: 'var(--red)', fontSize: '1rem' }}
-                      onClick={() => setDeleteTarget(a)}
-                      title="Delete announcement"
-                    >
-                      🗑️
-                    </button>
-                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {isNew(a.createdAt) && <span className="badge badge-new">New</span>}
+                    {user.role === 'admin' && (
+                      <button
+                        className="btn-icon"
+                        style={{ color: 'var(--red)', fontSize: '1rem' }}
+                        onClick={() => setDeleteTarget(a)}
+                        title="Delete announcement"
+                      >
+                        🗑️
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <p style={{ fontSize: '0.9rem', color: 'var(--ink)', lineHeight: 1.6, marginBottom: '8px' }}>
+
+                <h3 className="announce-card-title">{cleanTitle}</h3>
+
+                <p className="announce-card-msg">
                   {a.message}
                 </p>
-                <div className="timeline-meta">
-                  👤 {a.createdBy?.name || 'Admin'} · 🕐 {relTime(a.createdAt)}
-                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 

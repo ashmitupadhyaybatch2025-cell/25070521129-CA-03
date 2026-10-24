@@ -5,22 +5,21 @@ export default function PageTransitionLoader() {
   const location = useLocation()
   const prevPathRef = useRef(null)
   
-  // 1. Initial load / reload: Start as TRUE so it plays fully every time the site opens or refreshes
+  // Initial load / reload: starts as TRUE so it plays on opening the site or refresh
   const [loading, setLoading] = useState(true)
 
-  // Initial load timer (plays for 3.5 seconds on fresh load or reload)
+  // Initial load timer: runs max 2.2s (under 2.5 sec as requested)
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       setLoading(false)
       prevPathRef.current = location.pathname
-    }, 3500)
+    }, 2200)
 
     return () => clearTimeout(initialTimer)
   }, [])
 
   // Route transition effect
   useEffect(() => {
-    // Skip if it's the very first mount (handled by initial load effect above)
     if (prevPathRef.current === null) return
 
     const prevPath = prevPathRef.current
@@ -32,15 +31,15 @@ export default function PageTransitionLoader() {
     // ALWAYS trigger when moving from create (/signup) or /login
     const fromAuth = prevPath === '/signup' || prevPath === '/login' || currentPath === '/login'
 
-    // From other pages: trigger SOME OF THE TIME (~40% probability)
-    const randomTrigger = Math.random() < 0.40
+    // From other pages: trigger SOME OF THE TIME (~35% probability)
+    const randomTrigger = Math.random() < 0.35
 
     if (fromAuth || randomTrigger) {
       setLoading(true)
-      // Run for 3.5 seconds (at least 3-4s) so the full 3s Uiverse cycle finishes completely
+      // Max 2.2 seconds (under 2.5 sec)
       const timer = setTimeout(() => {
         setLoading(false)
-      }, 3500)
+      }, fromAuth ? 2200 : 1800)
 
       return () => clearTimeout(timer)
     }
@@ -50,29 +49,10 @@ export default function PageTransitionLoader() {
 
   return (
     <div className="page-loader-overlay" role="status" aria-live="polite">
-      {/* From Uiverse.io by SelfMadeSystem with LOADING */}
-      <div className="loader">
-        <div className="ph1">
-          <div className="record"></div>
-          <div className="record-text">LOADING</div>
-        </div>
-        <div className="ph2">
-          <div className="laptop-b"></div>
-          <svg
-            className="laptop-t"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 42 30"
-          >
-            <path
-              d="M21 1H5C2.78 1 1 2.78 1 5V25a4 4 90 004 4H37a4 4 90 004-4V5c0-2.22-1.8-4-4-4H21"
-              pathLength="100"
-              strokeWidth="2"
-              stroke="currentColor"
-              fill="none"
-            />
-          </svg>
-        </div>
-        <div className="icon"></div>
+      <div className="page-loader-wrapper">
+        {/* From Uiverse.io by Shoh2008 */}
+        <div className="loader"></div>
+        <div className="loader-label">LOADING</div>
       </div>
     </div>
   )
