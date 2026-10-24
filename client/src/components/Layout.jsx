@@ -1,31 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth.js'
-
-function getTheme() {
-  const saved = localStorage.getItem('flexi-theme')
-  if (saved) return saved
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
 
 export default function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [theme, setTheme] = useState(getTheme)
-
-  // Apply theme to document
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('flexi-theme', theme)
-  }, [theme])
 
   const onLogout = () => {
     logout()
     navigate('/login')
   }
-
-  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
   const linkClass = ({ isActive }) => (isActive ? 'active-link' : '')
 
@@ -57,15 +42,8 @@ export default function Layout() {
             )}
           </ul>
 
-          {/* Desktop right */}
+          {/* Desktop right (User & Logout) */}
           <div className="nav-right">
-            <button
-              className="nav-theme-btn"
-              onClick={toggleTheme}
-              aria-label="Toggle dark mode"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
             <span className="nav-user" title={user?.name}>{user?.name}</span>
             <button className="nav-btn" onClick={onLogout}>Log out</button>
           </div>
@@ -91,11 +69,8 @@ export default function Layout() {
           <NavLink className={linkClass} to="/admin" onClick={() => setMenuOpen(false)}>⚙️ Admin</NavLink>
         )}
         <div className="nav-mobile-bottom">
-          <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem' }}>{user?.name}</span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="nav-theme-btn" onClick={toggleTheme}>{theme === 'dark' ? '☀️' : '🌙'}</button>
-            <button className="nav-btn" onClick={onLogout}>Log out</button>
-          </div>
+          <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', fontWeight: 600 }}>{user?.name}</span>
+          <button className="nav-btn" onClick={onLogout}>Log out</button>
         </div>
       </div>
 

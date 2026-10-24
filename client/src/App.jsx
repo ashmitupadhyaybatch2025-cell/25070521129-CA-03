@@ -9,12 +9,16 @@ import Admin from './pages/Admin.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Layout from './components/Layout.jsx'
 import MatrixBackground from './components/MatrixBackground.jsx'
+import PageTransitionLoader from './components/PageTransitionLoader.jsx'
 
 export default function App() {
   return (
     <>
       {/* Live Japanese Matrix animation streaming across all pages */}
       <MatrixBackground />
+
+      {/* Cyber loading animation on auth navigations & occasionally between pages */}
+      <PageTransitionLoader />
 
       <Routes>
         <Route path="/" element={<Navigate to="/signup" replace />} />

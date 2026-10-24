@@ -175,10 +175,14 @@ export default function Home() {
           )}
           {data?.upcoming.map((e) => (
             <div className="list-item-card" key={e._id}>
-              <CategoryBadge category={e.category} />
-              <strong style={{ display: 'block', marginTop: '8px', marginBottom: '4px' }}>{e.title}</strong>
-              <div style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
-                📅 {fmt(e.date)} · 📍 {e.location}
+              <div className="list-item-top">
+                <CategoryBadge category={e.category} />
+              </div>
+              <h4 className="list-item-title">{e.title}</h4>
+              <div className="list-item-meta">
+                <span>📅 {fmt(e.date)}</span>
+                <span className="meta-sep">·</span>
+                <span>📍 {e.location}</span>
               </div>
             </div>
           ))}
@@ -201,12 +205,12 @@ export default function Home() {
           )}
           {data?.announcements.map((a) => (
             <div className="list-item-card" key={a._id}>
-              <strong style={{ display: 'block', marginBottom: '4px' }}>{a.title}</strong>
-              <div style={{ fontSize: '0.82rem', color: 'var(--muted)', marginBottom: '6px' }}>
-                {a.message.length > 100 ? a.message.slice(0, 100) + '…' : a.message}
-              </div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--muted-light)' }}>
-                {a.createdBy?.name || 'Admin'} · {relTime(a.createdAt)}
+              <h4 className="list-item-title">{a.title}</h4>
+              <p className="list-item-desc">{a.message}</p>
+              <div className="list-item-meta">
+                <span>👤 {a.createdBy?.name || 'Admin'}</span>
+                <span className="meta-sep">·</span>
+                <span>🕐 {relTime(a.createdAt)}</span>
               </div>
             </div>
           ))}

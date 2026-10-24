@@ -34,7 +34,8 @@ export default function MatrixBackground() {
     ctx.fillRect(0, 0, width, height)
 
     let lastTime = 0
-    const interval = 1000 / 30 // 30 FPS smooth cadence
+    // HALF SPEED: changed from 1000 / 30 to 1000 / 15 for calm, authentic slow-falling Matrix rain
+    const interval = 1000 / 15 
 
     const render = (time) => {
       animId = requestAnimationFrame(render)
@@ -42,8 +43,8 @@ export default function MatrixBackground() {
       if (time - lastTime < interval) return
       lastTime = time
 
-      // Fade canvas slightly for matrix trail
-      ctx.fillStyle = 'rgba(5, 5, 5, 0.12)'
+      // Fade canvas slightly for matrix trail (slower fade for half-speed rain)
+      ctx.fillStyle = 'rgba(5, 5, 5, 0.08)'
       ctx.fillRect(0, 0, width, height)
 
       ctx.font = `bold ${fontSize}px monospace`
@@ -70,7 +71,7 @@ export default function MatrixBackground() {
         ctx.shadowBlur = 0
 
         // Reset drop to top with slight randomness
-        if (y > height && Math.random() > 0.975) {
+        if (y > height && Math.random() > 0.98) {
           drops[i] = 0
         }
 
