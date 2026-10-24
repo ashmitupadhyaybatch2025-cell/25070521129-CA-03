@@ -91,6 +91,23 @@ body {
   position: relative;
 }
 
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+.matrix-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
   color: #ffffff;
