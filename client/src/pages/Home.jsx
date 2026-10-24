@@ -6,6 +6,7 @@ import { CategoryBadge } from '../components/Badge.jsx'
 import { SkeletonBlock } from '../components/Skeleton.jsx'
 
 const fmt = (d) => new Date(d).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+const sanitize = (text) => (text || '').replace(/flexi club hub/gi, 'The Club Hub').replace(/flexi/gi, 'The Club Hub')
 const relTime = (d) => {
   const diff = Date.now() - new Date(d).getTime()
   const m = Math.floor(diff / 60000)
@@ -71,8 +72,8 @@ function Countdown({ event }) {
   if (!event) return null
 
   return (
-    <div className="countdown-card">
-      <div className="countdown-title">⏳ Next up</div>
+    <Link to={`/events/${event._id}`} className="countdown-card countdown-card-link" title="Click to view event details">
+      <div className="countdown-title">⏳ Next up · Click for details →</div>
       <div className="countdown-event">{event.title}</div>
       <div className="countdown-timer">
         {[['d', 'Days'], ['h', 'Hours'], ['m', 'Mins'], ['s', 'Secs']].map(([k, label]) => (
@@ -82,7 +83,7 @@ function Countdown({ event }) {
           </div>
         ))}
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -174,17 +175,20 @@ export default function Home() {
             <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>No upcoming events yet.</p>
           )}
           {data?.upcoming.map((e) => (
-            <div className="list-item-card" key={e._id}>
+            <Link to={`/events/${e._id}`} className="list-item-card list-item-clickable" key={e._id} title="Click to view details & join">
               <div className="list-item-top">
                 <CategoryBadge category={e.category} />
+                <span className="view-detail-hint">View Details →</span>
               </div>
               <h4 className="list-item-title">{e.title}</h4>
               <div className="list-item-meta">
                 <span>📅 {fmt(e.date)}</span>
                 <span className="meta-sep">·</span>
                 <span>📍 {e.location}</span>
+                <span className="meta-sep">·</span>
+                <span>👥 {e.attendees.length} joined</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -205,8 +209,8 @@ export default function Home() {
           )}
           {data?.announcements.map((a) => (
             <div className="list-item-card" key={a._id}>
-              <h4 className="list-item-title">{a.title}</h4>
-              <p className="list-item-desc">{a.message}</p>
+              <h4 className="list-item-title">{sanitize(a.title)}</h4>
+              <p className="list-item-desc">{sanitize(a.message)}</p>
               <div className="list-item-meta">
                 <span>👤 {a.createdBy?.name || 'Admin'}</span>
                 <span className="meta-sep">·</span>

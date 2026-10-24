@@ -170,7 +170,7 @@ export default function Announcements() {
                 <h3 className="announce-card-title">{cleanTitle}</h3>
 
                 <p className="announce-card-msg">
-                  {a.message}
+                  {(a.message || '').replace(/flexi\s*club\s*hub/gi, 'The Club Hub').replace(/flexi/gi, 'The')}
                 </p>
               </div>
             )

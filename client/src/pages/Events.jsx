@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api.js'
 import useAuth from '../hooks/useAuth.js'
 import Modal from '../components/Modal.jsx'
@@ -48,6 +49,7 @@ function ProgressBar({ going, capacity }) {
 }
 
 export default function Events() {
+  const navigate = useNavigate()
   const { token, user: me } = useAuth()
   const toast = useToast()
   const [events, setEvents] = useState([])
@@ -235,17 +237,39 @@ export default function Events() {
             const fillPct = e.capacity > 0 ? Math.round((e.attendees.length / e.capacity) * 100) : 0
 
             return (
-              <div key={e._id} className={`event-card${past ? ' event-past' : ''}`}>
+              <div
+                key={e._id}
+                className={`event-card${past ? ' event-past' : ''} event-card-clickable`}
+                onClick={(ev) => {
+                  if (!ev.target.closest('button, a, input, select')) {
+                    navigate(`/events/${e._id}`)
+                  }
+                }}
+                title="Click to view full event details"
+              >
                 <div className="event-card-body">
                   {/* Badges */}
                   <div className="event-card-badges">
                     <CategoryBadge category={e.category} />
                     {past && <span className="badge badge-past">Past</span>}
                     {!past && full && <span className="badge badge-full">Full</span>}
+                    {joined && (
+                      <span className="badge" style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#86efac', border: '1px solid #22c55e' }}>
+                        ✓ Joined
+                      </span>
+                    )}
                   </div>
 
                   {/* Title */}
-                  <h4 className="event-card-title">{e.title}</h4>
+                  <h4 className="event-card-title">
+                    <Link
+                      to={`/events/${e._id}`}
+                      className="event-card-title-link"
+                      onClick={(ev) => ev.stopPropagation()}
+                    >
+                      {e.title}
+                    </Link>
+                  </h4>
 
                   {/* Meta */}
                   <div className="event-card-meta">
@@ -264,10 +288,21 @@ export default function Events() {
 
                   {/* Actions */}
                   <div className="event-card-actions">
+                    <Link
+                      to={`/events/${e._id}`}
+                      className="btn btn-ghost btn-sm"
+                      onClick={(ev) => ev.stopPropagation()}
+                    >
+                      Details →
+                    </Link>
+
                     {joined ? (
                       <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => handleLeave(e)}
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={(ev) => {
+                          ev.stopPropagation()
+                          handleLeave(e)
+                        }}
                       >
                         Leave
                       </button>
@@ -275,7 +310,10 @@ export default function Events() {
                       <button
                         className="btn btn-primary btn-sm join-btn"
                         disabled={past || full}
-                        onClick={(ev) => handleJoin(e, ev.currentTarget)}
+                        onClick={(ev) => {
+                          ev.stopPropagation()
+                          handleJoin(e, ev.currentTarget)
+                        }}
                       >
                         {full ? 'Full' : 'Join'}
                       </button>
@@ -284,7 +322,10 @@ export default function Events() {
                       <>
                         <button
                           className="btn-icon"
-                          onClick={() => openEdit(e)}
+                          onClick={(ev) => {
+                            ev.stopPropagation()
+                            openEdit(e)
+                          }}
                           title="Edit event"
                           style={{ fontSize: '1.1rem' }}
                         >
@@ -292,7 +333,10 @@ export default function Events() {
                         </button>
                         <button
                           className="btn-icon"
-                          onClick={() => handleDelete(e)}
+                          onClick={(ev) => {
+                            ev.stopPropagation()
+                            handleDelete(e)
+                          }}
                           title="Delete event"
                           style={{ fontSize: '1.1rem', color: 'var(--red)' }}
                         >

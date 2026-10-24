@@ -3,6 +3,7 @@ import Signup from './pages/Signup.jsx'
 import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
 import Events from './pages/Events.jsx'
+import EventDetail from './pages/EventDetail.jsx'
 import Announcements from './pages/Announcements.jsx'
 import Members from './pages/Members.jsx'
 import Admin from './pages/Admin.jsx'
@@ -35,6 +36,7 @@ export default function App() {
         >
           <Route path="/home" element={<Home />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/members" element={<Members />} />
           <Route
