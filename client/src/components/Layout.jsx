@@ -19,7 +19,11 @@ export default function Layout() {
       {/* ---- Navbar ---- */}
       <nav className="flexi-nav">
         <div className="nav-inner">
-          <NavLink className="nav-logo" to="/home">THE</NavLink>
+          <NavLink className="nav-logo interactive-logo" to="/home">
+            <span className="logo-the">THE</span>
+            <span className="logo-club">CLUB</span>
+            <span className="logo-hub">HUB</span>
+          </NavLink>
 
           {/* Desktop links */}
           <ul className="nav-links">

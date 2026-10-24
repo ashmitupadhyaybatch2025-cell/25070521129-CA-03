@@ -3,28 +3,44 @@ import { useLocation } from 'react-router-dom'
 
 export default function PageTransitionLoader() {
   const location = useLocation()
-  const prevPathRef = useRef(location.pathname)
-  const [loading, setLoading] = useState(false)
+  const prevPathRef = useRef(null)
+  
+  // 1. Initial load / reload: Start as TRUE so it plays fully every time the site opens or refreshes
+  const [loading, setLoading] = useState(true)
 
+  // Initial load timer (plays for 3.5 seconds on fresh load or reload)
   useEffect(() => {
+    const initialTimer = setTimeout(() => {
+      setLoading(false)
+      prevPathRef.current = location.pathname
+    }, 3500)
+
+    return () => clearTimeout(initialTimer)
+  }, [])
+
+  // Route transition effect
+  useEffect(() => {
+    // Skip if it's the very first mount (handled by initial load effect above)
+    if (prevPathRef.current === null) return
+
     const prevPath = prevPathRef.current
     const currentPath = location.pathname
     prevPathRef.current = currentPath
 
-    // Don't trigger if same path
     if (prevPath === currentPath) return
 
-    // 1. ALWAYS trigger when moving from create (/signup) or /login
+    // ALWAYS trigger when moving from create (/signup) or /login
     const fromAuth = prevPath === '/signup' || prevPath === '/login' || currentPath === '/login'
 
-    // 2. From other pages: trigger SOME OF THE TIME, not every time (~40% probability)
+    // From other pages: trigger SOME OF THE TIME (~40% probability)
     const randomTrigger = Math.random() < 0.40
 
     if (fromAuth || randomTrigger) {
       setLoading(true)
+      // Run for 3.5 seconds (at least 3-4s) so the full 3s Uiverse cycle finishes completely
       const timer = setTimeout(() => {
         setLoading(false)
-      }, fromAuth ? 1200 : 850)
+      }, 3500)
 
       return () => clearTimeout(timer)
     }

@@ -272,6 +272,85 @@ img { max-width: 100%; display: block; }
   text-shadow: 0 0 20px rgba(250, 204, 21, 0.9);
 }
 
+/* ---------- Interactive "THE CLUB HUB" Logo ---------- */
+.interactive-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font);
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.interactive-logo .logo-the {
+  color: #ffffff;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+  transition: all 0.25s ease;
+}
+
+.interactive-logo .logo-club {
+  color: var(--primary);
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-shadow: 0 0 14px rgba(250, 204, 21, 0.6);
+  transition: all 0.25s ease;
+}
+
+.interactive-logo .logo-hub {
+  background: var(--primary);
+  color: #000000 !important;
+  font-weight: 900;
+  letter-spacing: 2px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.5);
+  transition: all 0.25s ease;
+  line-height: 1.1;
+  display: inline-block;
+}
+
+/* Interactive hover effects: glow shift & letter expansion */
+.interactive-logo:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.interactive-logo:hover .logo-the {
+  color: var(--primary);
+  text-shadow: 0 0 16px rgba(250, 204, 21, 0.8);
+}
+
+.interactive-logo:hover .logo-club {
+  color: #ffffff;
+  letter-spacing: 4px;
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.9);
+}
+
+.interactive-logo:hover .logo-hub {
+  background: #ffe600;
+  box-shadow: 0 0 22px rgba(250, 204, 21, 0.9);
+  transform: rotate(-3deg) scale(1.08);
+}
+
+.interactive-logo:active {
+  transform: scale(0.96);
+}
+
+.nav-logo.interactive-logo {
+  font-size: 1.35rem;
+  letter-spacing: normal;
+}
+
+.auth-logo.interactive-logo {
+  font-size: 1.85rem;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: var(--sp-2);
+}
+
 .nav-links {
   display: flex;
   align-items: center;

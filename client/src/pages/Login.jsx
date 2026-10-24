@@ -80,7 +80,11 @@ export default function Login() {
       <div className="auth-right">
         <form className="auth-form-card" onSubmit={onSubmit} noValidate>
           <div>
-            <div className="auth-logo">THE</div>
+            <div className="auth-logo interactive-logo">
+              <span className="logo-the">THE</span>
+              <span className="logo-club">CLUB</span>
+              <span className="logo-hub">HUB</span>
+            </div>
             <p className="auth-subtitle" style={{ marginTop: '8px' }}>Sign in to your account</p>
           </div>
 
