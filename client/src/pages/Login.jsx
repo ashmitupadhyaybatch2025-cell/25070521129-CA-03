@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth.js'
 
-const EMOJIS = ['🎉', '🎶', '⚽', '🎨', '💻', '🏆', '🎤', '🚀', '🌟', '🎭']
+const MATRIX_SYMBOLS = ['日', 'ﾊ', 'ﾐ', '⚡', '💻', '0', '1', '✨', '🚀', '🎉']
 
 export default function Login() {
   const { login } = useAuth()
@@ -40,7 +40,7 @@ export default function Login() {
       {/* Left panel */}
       <div className="auth-left">
         <div className="auth-left-emojis" aria-hidden="true">
-          {EMOJIS.map((em, i) => (
+          {MATRIX_SYMBOLS.map((em, i) => (
             <span
               key={i}
               className="auth-emoji"

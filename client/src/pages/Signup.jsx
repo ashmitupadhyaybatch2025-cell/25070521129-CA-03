@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth.js'
 
-const EMOJIS = ['🎉', '🎶', '⚽', '🎨', '💻', '🏆', '🎤', '🚀', '🌟', '🎭']
+const MATRIX_SYMBOLS = ['日', 'ﾊ', 'ﾐ', '⚡', '💻', '0', '1', '✨', '🚀', '🎉']
 
 function validate(form) {
   const errs = {}
@@ -59,7 +59,7 @@ export default function Signup() {
       <div className="auth-left">
         {/* Floating emojis */}
         <div className="auth-left-emojis" aria-hidden="true">
-          {EMOJIS.map((em, i) => (
+          {MATRIX_SYMBOLS.map((em, i) => (
             <span
               key={i}
               className="auth-emoji"
