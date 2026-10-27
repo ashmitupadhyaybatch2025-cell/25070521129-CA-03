@@ -87,20 +87,23 @@ async function ensureDbMigration() {
             { $set: { "createdBy.name": "The Club Hub Admin" } }
         );
 
-        // Auto-seed admin if missing
-        let admin = (await targetDb.collection("student").findOne({ email: "admin@theclubhub.com" })) ||
-                    (await targetDb.collection("student").findOne({ email: "admin@flexi.com" }));
-        if (!admin) {
-            const result = await targetDb.collection("student").insertOne({
-                name: "The Club Hub Admin",
-                age: 30,
-                email: "admin@theclubhub.com",
-                password: await bCrypt.hash("admin123", 10),
-                status: "admin",
-                createdAt: new Date(),
-            });
-            admin = { _id: result.insertedId, name: "The Club Hub Admin" };
-            console.log("Auto-created admin account -> admin@theclubhub.com / admin123");
+        // Auto-seed admin accounts if missing
+        const defaultAdminHash = await bCrypt.hash("admin123", 10);
+        let admin = null;
+        for (const adminEmail of ["admin@theclubhub.com", "admin@flexi.com"]) {
+            let foundAdmin = await targetDb.collection("student").findOne({ email: adminEmail });
+            if (!foundAdmin) {
+                const result = await targetDb.collection("student").insertOne({
+                    name: "The Club Hub Admin",
+                    age: 30,
+                    email: adminEmail,
+                    password: defaultAdminHash,
+                    status: "admin",
+                    createdAt: new Date(),
+                });
+                foundAdmin = { _id: result.insertedId, name: "The Club Hub Admin" };
+            }
+            if (!admin) admin = foundAdmin;
         }
         const by = { _id: String(admin._id), name: admin.name };
 
