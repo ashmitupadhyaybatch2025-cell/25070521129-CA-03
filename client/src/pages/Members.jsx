@@ -9,7 +9,7 @@ import { SAMPLE_MEMBERS } from '../data/sampleMembers.js'
 import { getClubLeaders } from '../data/clubsData.js'
 
 export default function Members() {
-  const { token } = useAuth()
+  const { token, user: me } = useAuth()
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -59,6 +59,21 @@ export default function Members() {
         setLoading(false)
       })
   }, [token])
+
+  // Identify who the current logged-in user is
+  const clubLeadersList = getClubLeaders()
+  const myLeaderMeta = clubLeadersList.find(
+    (l) => l.name.toLowerCase().trim() === (me?.name || '').toLowerCase().trim()
+  )
+  const isMeAdmin = me?.role === 'admin'
+  const isMePresident = myLeaderMeta?.leaderType === 'president'
+  const isMeCoordinator = myLeaderMeta?.leaderType === 'coordinator'
+  const isMeLeader = isMePresident || isMeCoordinator
+
+  const myDisplayName =
+    isMeAdmin && (me?.name === 'Club Admin' || me?.name?.toLowerCase() === 'admin')
+      ? 'The Club Hub Admin'
+      : me?.name || 'Current User'
 
   // Sorting hierarchy:
   // 1. Admin at the very top (👑)
@@ -115,6 +130,17 @@ export default function Members() {
     return diffDays <= 2
   }
 
+  const isMe = (m) => {
+    if (!me) return false
+    if (m._id && me.id && String(m._id) === String(me.id)) return true
+    if (m.email && me.email && m.email.toLowerCase() === me.email.toLowerCase()) return true
+    const mName = (m.name || '').toLowerCase().trim()
+    const meName = (me.name || '').toLowerCase().trim()
+    if (mName === meName) return true
+    if (isMeAdmin && (mName === 'the club hub admin' || mName === 'club admin' || mName === 'admin')) return true
+    return false
+  }
+
   return (
     <div className="page-anim">
       {/* Header */}
@@ -127,9 +153,103 @@ export default function Members() {
             </span>
           </h2>
           <p style={{ color: 'var(--muted)', fontSize: '0.88rem', marginTop: '2px' }}>
-            Club leaders & collegiate community members. Team leaders & Presidents are highlighted below.
+            Campus club leadership and collegiate members directory.
           </p>
         </div>
+      </div>
+
+      {error && <div className="alert alert-error" style={{ marginBottom: '16px' }}>{error}</div>}
+
+      {/* ========================================================
+          WHO YOU LOGGED IN AS (Featured Profile Card at Top)
+          ======================================================== */}
+      {me && (
+        <div className="who-you-are-card">
+          <div className="who-badge-row">
+            <span className="who-pill-tag">
+              <span className="ticker-pulsing-dot" style={{ width: 8, height: 8 }} /> WHO YOU LOGGED IN AS
+            </span>
+            <span className="who-session-status">● Active Member Session</span>
+          </div>
+
+          <div className="who-card-content">
+            <div
+              className={`member-avatar ${
+                isMeAdmin
+                  ? 'member-avatar-admin'
+                  : isMePresident
+                  ? 'member-avatar-president'
+                  : isMeCoordinator
+                  ? 'member-avatar-coordinator'
+                  : ''
+              }`}
+              style={{ width: '68px', height: '68px', fontSize: '1.8rem', flexShrink: 0 }}
+            >
+              {isMeAdmin
+                ? '👑'
+                : isMePresident
+                ? myLeaderMeta.clubIcon || '⭐'
+                : isMeCoordinator
+                ? myLeaderMeta.clubIcon || '⚡'
+                : getInitials(myDisplayName)}
+            </div>
+
+            <div className="who-info-col">
+              <div className="who-name-line">
+                <span className="who-name-text">{myDisplayName}</span>
+                <span className="badge-you">YOU</span>
+                {isMeAdmin && <span className="admin-crown-icon" title="Club Administrator"> 👑</span>}
+                {isMePresident && <span className="leader-star-icon" title="Club President"> ⭐</span>}
+                {isMeCoordinator && <span className="coordinator-bolt-icon" title="Coordinator"> ⚡</span>}
+              </div>
+
+              <p className="who-role-sub">
+                {isMeAdmin
+                  ? 'Campus System Administrator · The Club Hub Platform Lead'
+                  : isMeLeader
+                  ? `${myLeaderMeta.roleTitle} · ${myLeaderMeta.clubName}`
+                  : 'Verified Collegiate Student Member'}
+              </p>
+
+              {isMeLeader && (
+                <div style={{ marginBottom: '10px' }}>
+                  <Link to={`/clubs/${myLeaderMeta.clubId}`} className="member-club-link" style={{ fontSize: '0.88rem' }}>
+                    {myLeaderMeta.clubIcon} View Your Club ({myLeaderMeta.clubName}) →
+                  </Link>
+                </div>
+              )}
+
+              <div className="who-meta-strip">
+                <span>
+                  <Badge type={isMeAdmin ? 'admin' : isMePresident ? 'workshop' : isMeCoordinator ? 'technical' : 'user'}>
+                    {isMeAdmin ? '👑 Administrator' : isMePresident ? '⭐ Club President' : isMeCoordinator ? '⚡ Coordinator' : '👤 Member'}
+                  </Badge>
+                </span>
+                {me.email && (
+                  <span className="who-meta-detail">
+                    ✉️ {me.email}
+                  </span>
+                )}
+                {me.createdAt && (
+                  <span className="who-meta-detail">
+                    📅 Joined {new Date(me.createdAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Directory Subheading & Search */}
+      <div className="members-directory-subhead">
+        <div>
+          <h3>All Campus Members & Club Leaders ({members.length})</h3>
+          <p style={{ color: 'var(--muted)', fontSize: '0.84rem', marginTop: '2px' }}>
+            All other leaders & collegiate members are listed below as they are.
+          </p>
+        </div>
+
         <input
           className="form-input"
           style={{ maxWidth: '300px' }}
@@ -138,8 +258,6 @@ export default function Members() {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-
-      {error && <div className="alert alert-error" style={{ marginBottom: '16px' }}>{error}</div>}
 
       {/* Filter Tabs */}
       <div className="member-filter-bar">
@@ -179,6 +297,7 @@ export default function Members() {
               const isPresident = m.leaderType === 'president'
               const isCoordinator = m.leaderType === 'coordinator'
               const isLeader = isPresident || isCoordinator
+              const thisIsMe = isMe(m)
 
               const displayName =
                 isAdmin && (m.name === 'Club Admin' || m.name.toLowerCase() === 'admin')
@@ -210,6 +329,7 @@ export default function Members() {
                   <div className="member-info">
                     <div className="member-name">
                       {displayName}
+                      {thisIsMe && <span className="badge-you" style={{ marginLeft: 6 }}>YOU</span>}
                       {isAdmin && <span className="admin-crown-icon" title="Club Administrator"> 👑</span>}
                       {isPresident && <span className="leader-star-icon" title="Club President"> ⭐</span>}
                       {isCoordinator && <span className="coordinator-bolt-icon" title="Club Coordinator"> ⚡</span>}
