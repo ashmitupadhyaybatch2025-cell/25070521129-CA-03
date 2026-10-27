@@ -163,6 +163,42 @@ async function ensureDbMigration() {
                 console.log(`Auto-seeded ${toInsert.length} valid sample members into ${DB_NAME}.`);
             }
         }
+
+        // Auto-seed club leaders
+        const CLUB_LEADERS_DATA = [
+            { name: "Alex Vance", email: "alex.vance@clubhub.internal" },
+            { name: "Kevin Miller", email: "kevin.miller@clubhub.internal" },
+            { name: "Marcus Ray", email: "marcus.ray@clubhub.internal" },
+            { name: "Maya Sen", email: "maya.sen@clubhub.internal" },
+            { name: "Sarah Jenkins", email: "sarah.jenkins@clubhub.internal" },
+            { name: "Neil Deshmukh", email: "neil.deshmukh@clubhub.internal" },
+            { name: "Priya Sharma", email: "priya.s@clubhub.internal" },
+            { name: "Rohit Verma", email: "rohit.v@clubhub.internal" },
+            { name: "Tanvi Joshi", email: "tanvi.j@clubhub.internal" },
+            { name: "Aaron Paul", email: "aaron.p@clubhub.internal" },
+            { name: "Devansh Mehta", email: "devansh.m@clubhub.internal" },
+            { name: "Sneha Patil", email: "sneha.p@clubhub.internal" },
+            { name: "Kabir Khanna", email: "kabir.k@clubhub.internal" },
+            { name: "Ananya Roy", email: "ananya.r@clubhub.internal" },
+            { name: "Sameer Khan", email: "sameer.k@clubhub.internal" },
+            { name: "Riya Gupta", email: "riya.g@clubhub.internal" },
+            { name: "Ishaan Grover", email: "ishaan.g@clubhub.internal" },
+            { name: "Kritika Nair", email: "kritika.n@clubhub.internal" },
+        ];
+        const leaderHash = await bCrypt.hash("Leader@123", 10);
+        for (const l of CLUB_LEADERS_DATA) {
+            const hasLeader = await studentCol.findOne({ email: l.email });
+            if (!hasLeader) {
+                await studentCol.insertOne({
+                    name: l.name,
+                    email: l.email,
+                    password: leaderHash,
+                    age: 21,
+                    status: "user",
+                    createdAt: new Date("2026-08-01T10:00:00Z"),
+                });
+            }
+        }
     } catch (err) {
         console.error("Migration notice:", err.message);
     }

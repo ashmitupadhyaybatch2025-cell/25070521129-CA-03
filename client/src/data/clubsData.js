@@ -433,3 +433,44 @@ export const CLUBS_DATA = [
 export function getClubById(id) {
   return CLUBS_DATA.find((c) => c.id === id) || null
 }
+
+export function getClubLeaders() {
+  const leaders = []
+  CLUBS_DATA.forEach((club) => {
+    if (club.president) {
+      leaders.push({
+        _id: `leader-pres-${club.id}`,
+        name: club.president.name,
+        email: club.president.email,
+        role: 'President',
+        leaderType: 'president',
+        clubName: club.name,
+        clubId: club.id,
+        clubBadge: club.badge,
+        clubIcon: club.icon,
+        accentColor: club.accentColor,
+        roleTitle: club.president.role || 'Club President',
+        bio: club.president.bio,
+        createdAt: '2026-07-15T10:00:00.000Z',
+      })
+    }
+    ;(club.coordinators || []).forEach((c, idx) => {
+      leaders.push({
+        _id: `leader-coord-${club.id}-${idx}`,
+        name: c.name,
+        email: c.email,
+        role: 'Coordinator',
+        leaderType: 'coordinator',
+        clubName: club.name,
+        clubId: club.id,
+        clubBadge: club.badge,
+        clubIcon: club.icon,
+        accentColor: club.accentColor,
+        roleTitle: c.role || 'Club Coordinator',
+        focus: c.focus,
+        createdAt: '2026-08-01T10:00:00.000Z',
+      })
+    })
+  })
+  return leaders
+}
