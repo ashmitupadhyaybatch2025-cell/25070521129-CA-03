@@ -3122,9 +3122,9 @@ img { max-width: 100%; display: block; }
 .ticker-track {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 32px;
   width: max-content;
-  animation: tickerScroll 48s linear infinite;
+  animation: tickerScroll 95s linear infinite;
   will-change: transform;
 }
 
