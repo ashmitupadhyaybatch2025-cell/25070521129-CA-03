@@ -291,7 +291,7 @@ export default function Members() {
         />
       ) : (
         <>
-          <div className="card-grid">
+          <div className="card-grid members-grid">
             {displayed.map((m) => {
               const isAdmin = m.role === 'admin'
               const isPresident = m.leaderType === 'president'

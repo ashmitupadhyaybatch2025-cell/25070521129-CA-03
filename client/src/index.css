@@ -159,7 +159,7 @@ img { max-width: 100%; display: block; }
 /* ---------- Grid ---------- */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--sp-6);
   align-items: stretch;
 }
@@ -1764,16 +1764,32 @@ img { max-width: 100%; display: block; }
 }
 
 /* ---------- Members Flexible Styling ---------- */
+.members-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 20px !important;
+}
+@media (max-width: 1024px) {
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 640px) {
+  .members-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 .member-card {
   background: var(--card);
   backdrop-filter: blur(16px);
   border-radius: 20px;
-  padding: 22px 26px;
+  padding: 20px 22px;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
   width: 100%;
   flex: 1 1 auto;
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
