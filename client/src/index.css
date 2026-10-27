@@ -3047,4 +3047,138 @@ img { max-width: 100%; display: block; }
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
+/* ============================================================
+   Live Community Activity Marquee Ticker Bar
+   ============================================================ */
+
+.activity-ticker-wrap {
+  width: 100%;
+  height: 42px;
+  background: rgba(8, 8, 10, 0.94);
+  border-top: 1px solid rgba(250, 204, 21, 0.18);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  z-index: 40;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+.ticker-badge-left {
+  background: linear-gradient(135deg, rgba(28, 25, 10, 0.98), rgba(16, 16, 18, 0.98));
+  border-right: 1.5px solid var(--border-glow);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  z-index: 2;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.8);
+  flex-shrink: 0;
+}
+
+.ticker-pulsing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.85);
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.85);
+  }
+  50% {
+    transform: scale(0.75);
+    opacity: 0.4;
+    box-shadow: 0 0 4px rgba(250, 204, 21, 0.3);
+  }
+}
+
+.ticker-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.ticker-viewport {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  mask-image: linear-gradient(to right, transparent, black 16px, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black 95%, transparent);
+}
+
+.ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  width: max-content;
+  animation: tickerScroll 48s linear infinite;
+  will-change: transform;
+}
+
+.activity-ticker-wrap:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #d4d4d8;
+  white-space: nowrap;
+}
+
+.ticker-item-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.ticker-item-text strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.ticker-item-text em {
+  color: var(--primary);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.ticker-item-time {
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+}
+
+.ticker-dot-sep {
+  color: rgba(250, 204, 21, 0.6);
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin-left: 12px;
+}
+
+@keyframes tickerScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 

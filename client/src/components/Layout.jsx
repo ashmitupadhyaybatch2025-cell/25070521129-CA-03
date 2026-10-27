@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth.js'
+import LiveActivityTicker from './LiveActivityTicker.jsx'
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -84,6 +85,9 @@ export default function Layout() {
           <button className="nav-btn" onClick={onLogout}>Log out</button>
         </div>
       </div>
+
+      {/* Live Community Activity Marquee Ticker */}
+      <LiveActivityTicker />
 
       {/* Page content */}
       <main className="flexi-main page-container page-anim">
