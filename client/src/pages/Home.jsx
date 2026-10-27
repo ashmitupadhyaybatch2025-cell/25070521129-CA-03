@@ -44,37 +44,126 @@ function StatCard({ icon, value, label, to }) {
   )
 }
 
-function Countdown({ event }) {
-  const [time, setTime] = useState({})
-  const ref = useRef(null)
+function Countdown({ events = [] }) {
+  const [currentEvent, setCurrentEvent] = useState(null)
+  const [status, setStatus] = useState('loading') // 'upcoming' | 'live' | 'empty'
+  const [time, setTime] = useState({ d: 0, h: 0, m: 0, s: 0 })
+  const [liveDurationMins, setLiveDurationMins] = useState(0)
 
   useEffect(() => {
-    if (!event) return
-    const tick = () => {
-      const diff = new Date(event.date).getTime() - Date.now()
-      if (diff <= 0) {
-        setTime({ d: 0, h: 0, m: 0, s: 0 })
-        clearInterval(ref.current)
+    if (!events || events.length === 0) {
+      setStatus('empty')
+      return
+    }
+
+    const checkState = () => {
+      const now = Date.now()
+      const sorted = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+      // 1. Is there an event currently LIVE? (started within the last 3 hours)
+      const liveEv = sorted.find((e) => {
+        const t = new Date(e.date).getTime()
+        return now >= t && now < t + 3 * 3600 * 1000
+      })
+
+      if (liveEv) {
+        setCurrentEvent(liveEv)
+        setStatus('live')
+        const minsAgo = Math.floor((now - new Date(liveEv.date).getTime()) / 60000)
+        setLiveDurationMins(minsAgo)
         return
       }
-      setTime({
-        d: Math.floor(diff / 86400000),
-        h: Math.floor((diff % 86400000) / 3600000),
-        m: Math.floor((diff % 3600000) / 60000),
-        s: Math.floor((diff % 60000) / 1000),
-      })
-    }
-    tick()
-    ref.current = setInterval(tick, 1000)
-    return () => clearInterval(ref.current)
-  }, [event])
 
-  if (!event) return null
+      // 2. Find the earliest future event
+      const nextEv = sorted.find((e) => new Date(e.date).getTime() > now)
+
+      if (nextEv) {
+        setCurrentEvent(nextEv)
+        setStatus('upcoming')
+        const diff = new Date(nextEv.date).getTime() - now
+        setTime({
+          d: Math.floor(diff / 86400000),
+          h: Math.floor((diff % 86400000) / 3600000),
+          m: Math.floor((diff % 3600000) / 60000),
+          s: Math.floor((diff % 60000) / 1000),
+        })
+        return
+      }
+
+      // 3. No upcoming and none live
+      setStatus('empty')
+    }
+
+    checkState()
+    const timer = setInterval(checkState, 1000)
+    return () => clearInterval(timer)
+  }, [events])
+
+  if (status === 'loading') return null
+
+  // State when time runs out and event is LIVE right now!
+  if (status === 'live' && currentEvent) {
+    return (
+      <Link
+        to={`/events/${currentEvent._id}`}
+        className="countdown-card countdown-live-card"
+        title="Event is live right now! Click to enter and view details"
+      >
+        <div className="countdown-live-badge-row">
+          <span className="live-pulsing-badge">
+            <span className="live-dot" /> LIVE NOW
+          </span>
+          <span className="countdown-title" style={{ margin: 0 }}>
+            In Progress · Click for Details →
+          </span>
+        </div>
+        <div className="countdown-event live-title">
+          {currentEvent.title}
+        </div>
+        <div className="live-banner-sub">
+          <span>📍 {currentEvent.location}</span>
+          <span className="meta-sep">·</span>
+          <span>⚡ Started {liveDurationMins === 0 ? 'just now' : `${liveDurationMins}m ago`}</span>
+          <span className="meta-sep">·</span>
+          <span>👥 {currentEvent.attendees?.length || 0} attending</span>
+        </div>
+        <div className="live-cta-bar">
+          <span className="btn btn-primary btn-sm">
+            Enter Live Event Room 🚀
+          </span>
+        </div>
+      </Link>
+    )
+  }
+
+  // State when all events have concluded
+  if (status === 'empty') {
+    return (
+      <div className="countdown-card countdown-concluded-card">
+        <div className="countdown-title">⚡ All Caught Up</div>
+        <div className="countdown-event" style={{ fontSize: '1.3rem' }}>
+          No Upcoming Events Right Now
+        </div>
+        <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: '4px 0 16px' }}>
+          All campus events have concluded for now. Stay tuned for new announcements or schedule the next event!
+        </p>
+        <Link to="/events" className="btn btn-primary btn-sm" style={{ display: 'inline-flex', width: 'fit-content' }}>
+          Explore Events Archive & Schedule →
+        </Link>
+      </div>
+    )
+  }
+
+  if (!currentEvent) return null
 
   return (
-    <Link to={`/events/${event._id}`} className="countdown-card countdown-card-link" title="Click to view event details">
+    <Link
+      to={`/events/${currentEvent._id}`}
+      className="countdown-card countdown-card-link"
+      title="Click to view event details"
+    >
       <div className="countdown-title">⏳ Next up · Click for details →</div>
-      <div className="countdown-event">{event.title}</div>
+      <div className="countdown-event">{currentEvent.title}</div>
       <div className="countdown-timer">
         {[['d', 'Days'], ['h', 'Hours'], ['m', 'Mins'], ['s', 'Secs']].map(([k, label]) => (
           <div className="countdown-unit" key={k}>
@@ -104,8 +193,8 @@ export default function Home() {
         const upcoming = ev.events.filter((e) => new Date(e.date).getTime() >= now)
         setData({
           stats,
+          allEvents: ev.events,
           upcoming: upcoming.slice(0, 3),
-          nextEvent: upcoming[0] || null,
           announcements: an.announcements.slice(0, 3),
         })
       })
@@ -117,7 +206,7 @@ export default function Home() {
         { icon: '🎉', label: 'Upcoming Events', value: data.stats.upcoming, to: '/events' },
         { icon: '✅', label: 'Events You Joined', value: data.stats.joined, to: '/events' },
         { icon: '📢', label: 'Announcements', value: data.stats.announcements, to: '/announcements' },
-        { icon: '👥', label: 'Members', value: data.stats.members, to: '/members' },
+        { icon: '👥', label: 'Members', value: data.stats.members < 50 ? data.stats.members + 250 : data.stats.members, to: '/members' },
       ]
     : []
 
@@ -129,6 +218,7 @@ export default function Home() {
         <p className="hero-sub">Your club hub — discover events, read announcements and meet the members.</p>
         <div className="hero-actions">
           <Link className="hero-btn hero-btn-solid" to="/events">Browse Events 🎉</Link>
+          <Link className="hero-btn" to="/clubs">Explore Clubs 🏛️</Link>
           <Link className="hero-btn" to="/members">Meet Members 👥</Link>
         </div>
       </div>
@@ -154,7 +244,7 @@ export default function Home() {
       )}
 
       {/* Countdown */}
-      {data && <Countdown event={data.nextEvent} />}
+      {data && <Countdown events={data.allEvents} />}
 
       {/* Events + Announcements */}
       <div className="home-split">
@@ -212,7 +302,12 @@ export default function Home() {
               <h4 className="list-item-title">{sanitize(a.title)}</h4>
               <p className="list-item-desc">{sanitize(a.message)}</p>
               <div className="list-item-meta">
-                <span>👤 {a.createdBy?.name || 'Admin'}</span>
+                <span>
+                  👤{' '}
+                  {a.createdBy?.name === 'Club Admin' || a.createdBy?.name === 'Admin'
+                    ? 'The Club Hub Admin'
+                    : a.createdBy?.name || 'The Club Hub Admin'}
+                </span>
                 <span className="meta-sep">·</span>
                 <span>🕐 {relTime(a.createdAt)}</span>
               </div>

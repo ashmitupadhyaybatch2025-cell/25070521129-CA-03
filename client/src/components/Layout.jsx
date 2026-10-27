@@ -13,6 +13,9 @@ export default function Layout() {
   }
 
   const linkClass = ({ isActive }) => (isActive ? 'active-link' : '')
+  const userName = user?.role === 'admin' && (user?.name === 'Club Admin' || user?.name === 'Admin')
+    ? 'The Club Hub Admin'
+    : user?.name
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -39,6 +42,9 @@ export default function Layout() {
             <li className="nav-link-item">
               <NavLink className={linkClass} to="/members">Members</NavLink>
             </li>
+            <li className="nav-link-item">
+              <NavLink className={linkClass} to="/clubs">Clubs</NavLink>
+            </li>
             {user?.role === 'admin' && (
               <li className="nav-link-item">
                 <NavLink className={linkClass} to="/admin">Admin</NavLink>
@@ -48,7 +54,7 @@ export default function Layout() {
 
           {/* Desktop right (User & Logout) */}
           <div className="nav-right">
-            <span className="nav-user" title={user?.name}>{user?.name}</span>
+            <span className="nav-user" title={userName}>{userName}</span>
             <button className="nav-btn" onClick={onLogout}>Log out</button>
           </div>
 
@@ -69,11 +75,12 @@ export default function Layout() {
         <NavLink className={linkClass} to="/events"  onClick={() => setMenuOpen(false)}>🎉 Events</NavLink>
         <NavLink className={linkClass} to="/announcements" onClick={() => setMenuOpen(false)}>📢 Announcements</NavLink>
         <NavLink className={linkClass} to="/members" onClick={() => setMenuOpen(false)}>👥 Members</NavLink>
+        <NavLink className={linkClass} to="/clubs"   onClick={() => setMenuOpen(false)}>🏛️ Clubs</NavLink>
         {user?.role === 'admin' && (
           <NavLink className={linkClass} to="/admin" onClick={() => setMenuOpen(false)}>⚙️ Admin</NavLink>
         )}
         <div className="nav-mobile-bottom">
-          <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', fontWeight: 600 }}>{user?.name}</span>
+          <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', fontWeight: 600 }}>{userName}</span>
           <button className="nav-btn" onClick={onLogout}>Log out</button>
         </div>
       </div>

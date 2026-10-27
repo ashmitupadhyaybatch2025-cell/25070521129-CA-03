@@ -4,6 +4,7 @@ const bodyparser = require("body-parser");
 const bCrypt = require("bcrypt");
 const jwtToken = require("jsonwebtoken");
 const cors = require("cors");
+const sampleMembersData = require("./sampleMembersData");
 
 const app = express();
 app.use(cors());
@@ -16,12 +17,114 @@ const port = 5000;
 // Same secret your teacher used. Change it for anything real.
 const SECRET = process.env.JWT_SECRET || "MY_SECRET_TOKEN";
 // Whoever signs up with this email becomes an admin
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@flexi.com").toLowerCase();
+const ADMIN_EMAILS = [
+    (process.env.ADMIN_EMAIL || "").toLowerCase(),
+    "admin@theclubhub.com",
+    "admin@flexi.com",
+].filter(Boolean);
+const isAdminEmail = (email) => ADMIN_EMAILS.includes(String(email || "").trim().toLowerCase());
+
+const DB_NAME = process.env.DB_NAME || "storeroom";
+const myDb = client.db(DB_NAME);
+const students = () => myDb.collection("student");      // teacher's collection = our users
+const events = () => myDb.collection("events");
+const announcements = () => myDb.collection("announcements");
+
+async function ensureDbMigration() {
+    try {
+        const targetDb = client.db(DB_NAME);
+        const sourceDb = client.db("sitSecB");
+        const collections = ["student", "events", "announcements"];
+
+        for (const col of collections) {
+            const countInTarget = await targetDb.collection(col).countDocuments();
+            if (countInTarget === 0) {
+                const countInSource = await sourceDb.collection(col).countDocuments();
+                if (countInSource > 0) {
+                    const docs = await sourceDb.collection(col).find().toArray();
+                    await targetDb.collection(col).insertMany(docs);
+                    console.log(`Auto-migrated ${docs.length} documents from sitSecB.${col} to ${DB_NAME}.${col}`);
+                }
+            }
+        }
+
+        // Sanitize any announcements with FLEXI in storeroom
+        const announcementsCol = targetDb.collection("announcements");
+        const allAnnouncements = await announcementsCol.find().toArray();
+        for (const a of allAnnouncements) {
+            if (/flexi/i.test(a.title) || /flexi/i.test(a.message)) {
+                await announcementsCol.updateOne(
+                    { _id: a._id },
+                    {
+                        $set: {
+                            title: (a.title || "").replace(/flexi\s*club\s*hub/gi, "The Club Hub").replace(/flexi/gi, "The"),
+                            message: (a.message || "").replace(/flexi\s*club\s*hub/gi, "The Club Hub").replace(/flexi/gi, "The"),
+                        },
+                    }
+                );
+            }
+        }
+
+        // Ensure indexes in storeroom
+        await targetDb.collection("student").createIndex({ email: 1 }, { unique: true }).catch(() => {});
+        await targetDb.collection("events").createIndex({ date: 1 }).catch(() => {});
+        await targetDb.collection("announcements").createIndex({ createdAt: -1 }).catch(() => {});
+
+        // Update Admin name to "The Club Hub Admin" across database
+        await targetDb.collection("student").updateMany(
+            { status: "admin", name: { $in: ["Club Admin", "Admin"] } },
+            { $set: { name: "The Club Hub Admin" } }
+        );
+        await targetDb.collection("events").updateMany(
+            { "createdBy.name": "Club Admin" },
+            { $set: { "createdBy.name": "The Club Hub Admin" } }
+        );
+        await targetDb.collection("announcements").updateMany(
+            { "createdBy.name": "Club Admin" },
+            { $set: { "createdBy.name": "The Club Hub Admin" } }
+        );
+
+        // Auto-seed ~250 valid collegiate sample members if collection is small
+        const studentCol = targetDb.collection("student");
+        const studentCount = await studentCol.countDocuments();
+        if (studentCount < 50 && Array.isArray(sampleMembersData)) {
+            const defaultPasswordHash = await bCrypt.hash("Member@123", 10);
+            const now = Date.now();
+            const docs = [];
+            for (let i = 0; i < sampleMembersData.length; i++) {
+                const name = sampleMembersData[i];
+                const cleanSlug = name.toLowerCase().replace(/[^a-z0-9]/g, ".");
+                const email = `${cleanSlug}.${i + 101}@student.clubhub.edu`;
+                const daysAgo = 85 - Math.floor((i / sampleMembersData.length) * 82);
+                const hourOffset = (i % 24) * 3600 * 1000;
+                docs.push({
+                    name: name,
+                    email: email,
+                    password: defaultPasswordHash,
+                    age: 18 + (i % 5),
+                    status: "user",
+                    createdAt: new Date(now - (daysAgo * 24 * 3600 * 1000) - hourOffset),
+                });
+            }
+            const existingEmails = new Set(
+                (await studentCol.find({}, { projection: { email: 1 } }).toArray()).map((u) => u.email)
+            );
+            const toInsert = docs.filter((d) => !existingEmails.has(d.email));
+            if (toInsert.length > 0) {
+                await studentCol.insertMany(toInsert);
+                console.log(`Auto-seeded ${toInsert.length} valid sample members into ${DB_NAME}.`);
+            }
+        }
+    } catch (err) {
+        console.error("Migration notice:", err.message);
+    }
+}
 
 async function connectToMongoDb() {
     try {
         await client.connect();
-        console.log("Connection successfully done with mongodb");
+        console.log(`Connection successfully done with mongodb (database: ${DB_NAME})`);
+        await ensureDbMigration();
 
         app.listen(port, () => {
             console.log("Server started at port : " + port);
@@ -35,11 +138,6 @@ async function connectToMongoDb() {
 if (require.main === module) {
     connectToMongoDb();
 }
-
-const myDb = client.db("sitSecB");
-const students = () => myDb.collection("student");      // teacher's collection = our users
-const events = () => myDb.collection("events");
-const announcements = () => myDb.collection("announcements");
 
 const CATEGORIES = ["Workshop", "Sports", "Cultural", "Technical", "Social"];
 
@@ -177,7 +275,7 @@ app.post("/create", async (req, res) => {
     const hashedPass = await bCrypt.hash(password, 10);
 
     // The role is decided here, never taken from the request
-    const status = cleanEmail === ADMIN_EMAIL ? "admin" : "user";
+    const status = isAdminEmail(cleanEmail) ? "admin" : "user";
 
     const response = await students().insertOne({
         name: String(name).trim(),
@@ -263,7 +361,16 @@ app.get("/members", protect, async (req, res) => {
     const all = await students().find().toArray();
     const members = all
         .map((u) => ({ _id: u._id, name: u.name, role: roleOf(u), createdAt: createdAtOf(u) }))
-        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        .sort((a, b) => {
+            // Admin always at the very top
+            if (a.role === "admin" && b.role !== "admin") return -1;
+            if (a.role !== "admin" && b.role === "admin") return 1;
+            if (a.role === "admin" && b.role === "admin") {
+                return new Date(a.createdAt) - new Date(b.createdAt);
+            }
+            // Regular members: newest joined member shows at top (directly below admin)
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
     res.send({ members });
 });
 

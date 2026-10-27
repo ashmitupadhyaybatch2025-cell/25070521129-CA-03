@@ -14,20 +14,24 @@ const at = (days, hour) => {
 
 async function seed() {
     await client.connect();
-    const db = client.db("sitSecB");
+    const dbName = process.env.DB_NAME || "storeroom";
+    const db = client.db(dbName);
 
-    let admin = await db.collection("student").findOne({ email: "admin@flexi.com" });
+    let admin = (await db.collection("student").findOne({ email: "admin@theclubhub.com" })) || (await db.collection("student").findOne({ email: "admin@flexi.com" }));
     if (!admin) {
         const result = await db.collection("student").insertOne({
-            name: "Club Admin",
+            name: "The Club Hub Admin",
             age: 30,
-            email: "admin@flexi.com",
+            email: "admin@theclubhub.com",
             password: await bCrypt.hash("admin123", 10),
             status: "admin",
             createdAt: new Date(),
         });
-        admin = { _id: result.insertedId, name: "Club Admin" };
-        console.log("Created admin  ->  admin@flexi.com / admin123");
+        admin = { _id: result.insertedId, name: "The Club Hub Admin" };
+        console.log("Created admin  ->  admin@theclubhub.com / admin123");
+    } else if (admin.name !== "The Club Hub Admin") {
+        await db.collection("student").updateOne({ _id: admin._id }, { $set: { name: "The Club Hub Admin" } });
+        admin.name = "The Club Hub Admin";
     }
     const by = { _id: String(admin._id), name: admin.name };
 
@@ -45,14 +49,14 @@ async function seed() {
 
     if ((await db.collection("announcements").countDocuments()) === 0) {
         await db.collection("announcements").insertMany([
-            { title: "Welcome to FLEXI Club Hub!", message: "Browse events, join the ones you like, and check this page for updates.", createdBy: by, createdAt: new Date() },
+            { title: "Welcome to The Club Hub!", message: "Browse events, join the ones you like, and check this page for updates.", createdBy: by, createdAt: new Date() },
             { title: "Hackathon registrations open", message: "Join the Hackathon 24h event from the Events page. Seats are limited.", createdBy: by, createdAt: new Date() },
         ]);
         console.log("Added sample announcements");
     }
 
     await client.close();
-    console.log("Seed complete");
+    console.log(`Seed complete for database: ${dbName}`);
 }
 
 seed().catch((e) => {

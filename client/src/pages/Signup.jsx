@@ -2,17 +2,93 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth.js'
 
-const MATRIX_SYMBOLS = ['日', 'ﾊ', 'ﾐ', '⚡', '💻', '0', '1', '✨', '🚀', '🎉']
+const MATRIX_SYMBOLS = ['日', 'ﾊ', 'ﾐ', '⚡', '💻', '0', '1', '✨', '🚀', '🎉', '💾', '⌨️', '🎯', 'ﾕ', '🌐', 'ﾗ', '📡', '🔒', 'ﾋ', '🛡️']
 
 function validate(form) {
   const errs = {}
   if (!form.name || form.name.trim().length < 2) errs.name = 'Name must be at least 2 characters'
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Enter a valid email address'
+  if (!form.email) {
+    errs.email = 'Email is required'
+  } else {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
+    if (!emailPattern.test(form.email)) {
+      errs.email = 'Enter a valid email address'
+    } else {
+      const tld = form.email.split('.').pop().toLowerCase()
+      const fakeTLDs = ['www', 'http', 'https', 'ftp', 'html', 'css', 'php', 'asp', 'sql', 'xml', 'json', 'localhost', 'test', 'example', 'invalid', 'abc', 'aaa', 'xxx', 'zzz']
+      if (fakeTLDs.includes(tld)) {
+        errs.email = `".${tld}" is not a valid email domain. Use a real one like .com, .in, .org`
+      }
+    }
+  }
   if (form.age && (isNaN(Number(form.age)) || Number(form.age) < 1 || Number(form.age) > 120))
     errs.age = 'Age must be a number between 1 and 120'
-  if (!form.password || form.password.length < 6) errs.password = 'Password must be at least 6 characters'
-  if (form.password !== form.confirm) errs.confirm = 'Passwords do not match'
+  
+  const pass = form.password || ''
+  if (!pass) {
+    errs.password = 'Password is required'
+  } else {
+    const hasUpper = /[A-Z]/.test(pass)
+    const hasLower = /[a-z]/.test(pass)
+    const hasNumber = /[0-9]/.test(pass)
+    const hasMinLen = pass.length >= 6
+
+    if (!hasUpper || !hasLower || !hasNumber || !hasMinLen) {
+      errs.password = 'Password weak: Must contain at least a capital letter (A-Z), a small letter (a-z), and a number (0-9).'
+    }
+  }
+
+  if (!form.confirm) {
+    errs.confirm = 'Please confirm your password'
+  } else if (form.password !== form.confirm) {
+    errs.confirm = 'Passwords do not match'
+  }
+
   return errs
+}
+
+function PasswordStrengthIndicator({ password }) {
+  if (!password) return null
+  const hasMinLen = password.length >= 6
+  const hasUpper = /[A-Z]/.test(password)
+  const hasLower = /[a-z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
+  const score = [hasMinLen, hasUpper, hasLower, hasNumber].filter(Boolean).length
+  const isWeak = score < 4
+
+  return (
+    <div className="pass-strength-card">
+      <div className="pass-strength-bar-wrap">
+        <div
+          className={`pass-strength-bar-fill ${score <= 2 ? 'weak' : score === 3 ? 'medium' : 'strong'}`}
+          style={{ width: `${(score / 4) * 100}%` }}
+        />
+      </div>
+      <div className="pass-strength-header">
+        <span className="pass-status-text">
+          Status:{' '}
+          <strong className={isWeak ? 'status-weak' : 'status-strong'}>
+            {isWeak ? 'Password weak' : 'Password strong ✓'}
+          </strong>
+        </span>
+        <span className="pass-score-text">{score}/4 requirements</span>
+      </div>
+      <div className="pass-criteria-badges">
+        <span className={`pass-badge ${hasUpper ? 'met' : 'unmet'}`}>
+          {hasUpper ? '✓' : '✗'} Capital letter (A-Z)
+        </span>
+        <span className={`pass-badge ${hasLower ? 'met' : 'unmet'}`}>
+          {hasLower ? '✓' : '✗'} Small letter (a-z)
+        </span>
+        <span className={`pass-badge ${hasNumber ? 'met' : 'unmet'}`}>
+          {hasNumber ? '✓' : '✗'} Number (0-9)
+        </span>
+        <span className={`pass-badge ${hasMinLen ? 'met' : 'unmet'}`}>
+          {hasMinLen ? '✓' : '✗'} Min 6 chars
+        </span>
+      </div>
+    </div>
+  )
 }
 
 export default function Signup() {
@@ -46,9 +122,9 @@ export default function Signup() {
     }
   }
 
-  // Apply light theme on auth pages
+  // Apply theme on auth pages
   useEffect(() => {
-    const theme = localStorage.getItem('flexi-theme') || 'light'
+    const theme = localStorage.getItem('theclubhub-theme') || localStorage.getItem('flexi-theme') || 'dark'
     document.documentElement.setAttribute('data-theme', theme)
     document.title = 'Sign Up — The Club Hub'
   }, [])
@@ -62,12 +138,12 @@ export default function Signup() {
           {MATRIX_SYMBOLS.map((em, i) => (
             <span
               key={i}
-              className="auth-emoji"
+              className={`auth-emoji${i % 4 === 0 ? ' auth-emoji-glow' : ''}`}
               style={{
-                left: `${(i * 10) % 100}%`,
-                animationDuration: `${12 + i * 2}s`,
-                animationDelay: `${-i * 1.5}s`,
-                fontSize: `${1.5 + (i % 3) * 0.5}rem`,
+                left: `${(i * 5) % 95}%`,
+                animationDuration: `${10 + (i % 7) * 2.5}s`,
+                animationDelay: `${-i * 1.2}s`,
+                fontSize: `${1.6 + (i % 4) * 0.5}rem`,
               }}
             >
               {em}
@@ -172,6 +248,7 @@ export default function Signup() {
             {touched.password && errs.password && (
               <span style={{ color: 'var(--red)', fontSize: '0.78rem' }}>{errs.password}</span>
             )}
+            <PasswordStrengthIndicator password={form.password} />
           </div>
 
           {/* Confirm password */}

@@ -98,7 +98,11 @@ export default function Admin() {
               {users.map((u) => (
                 <tr key={u._id}>
                   <td>
-                    <strong>{u.name}</strong>
+                    <strong>
+                      {u.status === 'admin' && (u.name === 'Club Admin' || u.name === 'Admin')
+                        ? 'The Club Hub Admin'
+                        : u.name}
+                    </strong>
                     {String(u._id) === me.id && (
                       <span style={{ marginLeft: '6px', fontSize: '0.72rem', color: 'var(--muted)' }}>(you)</span>
                     )}

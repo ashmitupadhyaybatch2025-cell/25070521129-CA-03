@@ -230,10 +230,11 @@ export default function Events() {
       ) : (
         <div className="card-grid">
           {visible.map((e) => {
-            const joined = e.attendees.includes(me.id)
+            const myId = me?.id || me?._id
+            const joined = (e.attendees || []).some((a) => String(a) === String(myId))
             const past = new Date(e.date).getTime() < now
             const full = e.capacity > 0 && e.attendees.length >= e.capacity
-            const canModify = me.role === 'admin' || e.createdBy?._id === me.id
+            const canModify = me?.role === 'admin' || (e.createdBy && String(e.createdBy._id) === String(myId))
             const fillPct = e.capacity > 0 ? Math.round((e.attendees.length / e.capacity) * 100) : 0
 
             return (
@@ -275,7 +276,12 @@ export default function Events() {
                   <div className="event-card-meta">
                     <span>📅 {fmt(e.date)}</span>
                     <span>📍 {e.location}</span>
-                    <span>👤 by {e.createdBy?.name || 'Unknown'}</span>
+                    <span>
+                      👤 by{' '}
+                      {e.createdBy?.name === 'Club Admin' || e.createdBy?.name === 'Admin'
+                        ? 'The Club Hub Admin'
+                        : e.createdBy?.name || 'The Club Hub Admin'}
+                    </span>
                   </div>
 
                   {/* Description */}

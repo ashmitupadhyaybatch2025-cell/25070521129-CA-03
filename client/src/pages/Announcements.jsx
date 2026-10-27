@@ -148,7 +148,11 @@ export default function Announcements() {
                       {getInitials(a.createdBy?.name)}
                     </div>
                     <div>
-                      <div className="announce-author-name">{a.createdBy?.name || 'Admin'}</div>
+                      <div className="announce-author-name">
+                        {a.createdBy?.name === 'Club Admin' || a.createdBy?.name === 'Admin'
+                          ? 'The Club Hub Admin'
+                          : a.createdBy?.name || 'The Club Hub Admin'}
+                      </div>
                       <div className="announce-time">🕐 {relTime(a.createdAt)}</div>
                     </div>
                   </div>

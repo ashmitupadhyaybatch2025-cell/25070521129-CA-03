@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 import { AuthContext } from './auth-context.js'
 
-const TOKEN_KEY = 'flexi_token'
+const TOKEN_KEY = 'theclubhub_token'
+const getStoredToken = () => localStorage.getItem('theclubhub_token') || localStorage.getItem('flexi_token')
 
 export default function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
+  const [token, setToken] = useState(() => getStoredToken())
   const [user, setUser] = useState(null)
   // Only "loading" if a saved token must be verified on first render
-  const [loading, setLoading] = useState(() => !!localStorage.getItem(TOKEN_KEY))
+  const [loading, setLoading] = useState(() => !!getStoredToken())
 
   // Restore the session after a page refresh
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem('flexi_token')
     setToken(null)
     setUser(null)
   }

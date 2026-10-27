@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth.js'
 
-const MATRIX_SYMBOLS = ['日', 'ﾊ', 'ﾐ', '⚡', '💻', '0', '1', '✨', '🚀', '🎉']
+const MATRIX_SYMBOLS = ['日', 'ﾊ', 'ﾐ', '⚡', '💻', '0', '1', '✨', '🚀', '🎉', '💾', '⌨️', '🎯', 'ﾕ', '🌐', 'ﾗ', '📡', '🔒', 'ﾋ', '🛡️']
 
 export default function Login() {
   const { login } = useAuth()
@@ -30,7 +30,7 @@ export default function Login() {
   }
 
   useEffect(() => {
-    const theme = localStorage.getItem('flexi-theme') || 'light'
+    const theme = localStorage.getItem('theclubhub-theme') || localStorage.getItem('flexi-theme') || 'dark'
     document.documentElement.setAttribute('data-theme', theme)
     document.title = 'Log In — The Club Hub'
   }, [])
@@ -43,12 +43,12 @@ export default function Login() {
           {MATRIX_SYMBOLS.map((em, i) => (
             <span
               key={i}
-              className="auth-emoji"
+              className={`auth-emoji${i % 4 === 0 ? ' auth-emoji-glow' : ''}`}
               style={{
-                left: `${(i * 10) % 100}%`,
-                animationDuration: `${12 + i * 2}s`,
-                animationDelay: `${-i * 1.5}s`,
-                fontSize: `${1.5 + (i % 3) * 0.5}rem`,
+                left: `${(i * 5) % 95}%`,
+                animationDuration: `${10 + (i % 7) * 2.5}s`,
+                animationDelay: `${-i * 1.2}s`,
+                fontSize: `${1.6 + (i % 4) * 0.5}rem`,
               }}
             >
               {em}

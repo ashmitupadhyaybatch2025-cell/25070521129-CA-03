@@ -38,6 +38,7 @@ export function getConductingClub(event) {
 
   if (cat === 'technical' || title.includes('hack') || title.includes('code') || title.includes('web')) {
     return {
+      id: 'binary-beats',
       name: 'Binary Beats & Cyber Coding Club',
       badge: '💻 Tech Division',
       lead: 'Lead Dev: Alex Vance & Core Tech Guild',
@@ -49,6 +50,7 @@ export function getConductingClub(event) {
   }
   if (cat === 'workshop' || title.includes('workshop') || title.includes('masterclass') || title.includes('design')) {
     return {
+      id: 'skillforge',
       name: 'SkillForge Technical Guild',
       badge: '🛠️ Innovation & Labs',
       lead: 'Faculty Advisor: Dr. V. Ramanujan',
@@ -60,6 +62,7 @@ export function getConductingClub(event) {
   }
   if (cat === 'sports' || title.includes('match') || title.includes('league') || title.includes('tournament') || title.includes('esport')) {
     return {
+      id: 'thunderbolts',
       name: 'Thunderbolts Sports & Esports Council',
       badge: '⚡ Athletics & Gaming',
       lead: 'Council Captain: Marcus Ray',
@@ -71,6 +74,7 @@ export function getConductingClub(event) {
   }
   if (cat === 'cultural' || title.includes('dance') || title.includes('music') || title.includes('fest') || title.includes('drama')) {
     return {
+      id: 'rhythm-resonance',
       name: 'Rhythm & Resonance Cultural Society',
       badge: '🎭 Performing Arts',
       lead: 'Creative Director: Maya Sen',
@@ -81,6 +85,7 @@ export function getConductingClub(event) {
     }
   }
   return {
+    id: 'nexus',
     name: 'Nexus Student Affairs & Social Cell',
     badge: '🤝 Community & Social',
     lead: 'Student Affairs Head: Sarah Jenkins',
@@ -192,10 +197,11 @@ export default function EventDetail() {
     )
   }
 
-  const isJoined = (event.attendees || []).includes(me.id)
+  const myId = me?.id || me?._id
+  const isJoined = (event.attendees || []).some((a) => String(a) === String(myId))
   const isPast = new Date(event.date).getTime() < Date.now()
   const isFull = event.capacity > 0 && (event.attendees || []).length >= event.capacity
-  const canModify = me.role === 'admin' || event.createdBy?._id === me.id
+  const canModify = me?.role === 'admin' || (event.createdBy && String(event.createdBy._id) === String(myId))
   const club = getConductingClub(event)
   const duration = getEventDuration(event)
   const going = (event.attendees || []).length
@@ -346,6 +352,11 @@ export default function EventDetail() {
             <div className="club-footer-meta">
               <span>📍 Headquarters: {club.meeting}</span>
               <span>✉️ Contact: {club.email}</span>
+              {club.id && (
+                <Link to={`/clubs/${club.id}`} className="btn btn-ghost btn-sm" style={{ marginLeft: 'auto' }}>
+                  View Club Profile →
+                </Link>
+              )}
             </div>
           </div>
 
@@ -527,7 +538,11 @@ export default function EventDetail() {
                 <span className="meta-tile-icon">👤</span>
                 <div>
                   <div className="meta-tile-label">Posted by</div>
-                  <div className="meta-tile-val">{event.createdBy?.name || 'Club Admin'}</div>
+                  <div className="meta-tile-val">
+                    {event.createdBy?.name === 'Club Admin' || event.createdBy?.name === 'Admin'
+                      ? 'The Club Hub Admin'
+                      : event.createdBy?.name || 'The Club Hub Admin'}
+                  </div>
                 </div>
               </div>
             </div>

@@ -6,6 +6,8 @@ import Events from './pages/Events.jsx'
 import EventDetail from './pages/EventDetail.jsx'
 import Announcements from './pages/Announcements.jsx'
 import Members from './pages/Members.jsx'
+import Clubs from './pages/Clubs.jsx'
+import ClubDetail from './pages/ClubDetail.jsx'
 import Admin from './pages/Admin.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Layout from './components/Layout.jsx'
@@ -39,6 +41,8 @@ export default function App() {
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/members" element={<Members />} />
+          <Route path="/clubs" element={<Clubs />} />
+          <Route path="/clubs/:id" element={<ClubDetail />} />
           <Route
             path="/admin"
             element={
