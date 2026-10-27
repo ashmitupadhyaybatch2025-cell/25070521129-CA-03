@@ -24,7 +24,7 @@ const ADMIN_EMAILS = [
 ].filter(Boolean);
 const isAdminEmail = (email) => ADMIN_EMAILS.includes(String(email || "").trim().toLowerCase());
 
-const DB_NAME = process.env.DB_NAME || "storeroom";
+const DB_NAME = process.env.DB_NAME || "the_club_hub";
 const myDb = client.db(DB_NAME);
 const students = () => myDb.collection("student");      // teacher's collection = our users
 const events = () => myDb.collection("events");
@@ -33,17 +33,20 @@ const announcements = () => myDb.collection("announcements");
 async function ensureDbMigration() {
     try {
         const targetDb = client.db(DB_NAME);
-        const sourceDb = client.db("sitSecB");
         const collections = ["student", "events", "announcements"];
 
-        for (const col of collections) {
-            const countInTarget = await targetDb.collection(col).countDocuments();
-            if (countInTarget === 0) {
-                const countInSource = await sourceDb.collection(col).countDocuments();
-                if (countInSource > 0) {
-                    const docs = await sourceDb.collection(col).find().toArray();
-                    await targetDb.collection(col).insertMany(docs);
-                    console.log(`Auto-migrated ${docs.length} documents from sitSecB.${col} to ${DB_NAME}.${col}`);
+        // Migrate from legacy storeroom or sitSecB if the_club_hub is brand new
+        for (const legacyName of ["storeroom", "sitSecB"]) {
+            const legacyDb = client.db(legacyName);
+            for (const col of collections) {
+                const countInTarget = await targetDb.collection(col).countDocuments();
+                if (countInTarget === 0) {
+                    const countInLegacy = await legacyDb.collection(col).countDocuments();
+                    if (countInLegacy > 0) {
+                        const docs = await legacyDb.collection(col).find().toArray();
+                        await targetDb.collection(col).insertMany(docs);
+                        console.log(`Auto-migrated ${docs.length} documents from ${legacyName}.${col} to ${DB_NAME}.${col}`);
+                    }
                 }
             }
         }

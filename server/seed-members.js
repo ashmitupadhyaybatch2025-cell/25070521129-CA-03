@@ -9,7 +9,7 @@ const client = new MongoClient(uri);
 async function seedMembers() {
     try {
         await client.connect();
-        const dbName = process.env.DB_NAME || "storeroom";
+        const dbName = process.env.DB_NAME || "the_club_hub";
         const db = client.db(dbName);
         const studentCol = db.collection("student");
 

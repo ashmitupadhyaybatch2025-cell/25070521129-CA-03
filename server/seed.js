@@ -14,7 +14,7 @@ const at = (days, hour) => {
 
 async function seed() {
     await client.connect();
-    const dbName = process.env.DB_NAME || "storeroom";
+    const dbName = process.env.DB_NAME || "the_club_hub";
     const db = client.db(dbName);
 
     let admin = (await db.collection("student").findOne({ email: "admin@theclubhub.com" })) || (await db.collection("student").findOne({ email: "admin@flexi.com" }));
